@@ -1,15 +1,22 @@
 
-
-![image](opencv\rgb_groups_by_kmeans\k-mean-example.jpg)
-
-
-![image](opencv\rgb_groups_by_kmeans\img_k[1]_result.jpg)
+## input
+![image](https://github.com/RyanJhang/note/blob/main/opencv/rgb_groups_by_kmeans/k-mean-example.jpg)
 
 
-![image](opencv\rgb_groups_by_kmeans\img_k[2]_result.jpg)
+## result
+
+### 1
+![image](https://github.com/RyanJhang/note/blob/main/opencv/rgb_groups_by_kmeans/img_k%5B1%5D_result.jpg)
 
 
-![image](opencv\rgb_groups_by_kmeans\img_k[3]_result.jpg)
+### 2
+![image](https://github.com/RyanJhang/note/blob/main/opencv/rgb_groups_by_kmeans/img_k%5B2%5D_result.jpg)
 
 
-![image](opencv\rgb_groups_by_kmeans\img_k[4]_result.jpg)
+### 3
+![image](https://github.com/RyanJhang/note/blob/main/opencv/rgb_groups_by_kmeans/img_k%5B3%5D_result.jpg)
+
+
+### 4
+![image](https://github.com/RyanJhang/note/blob/main/opencv/rgb_groups_by_kmeans/img_k%5B4%5D_result.jpg)
+
