@@ -20,3 +20,7 @@
 ### 4
 ![image](https://github.com/RyanJhang/note/blob/main/opencv/rgb_groups_by_kmeans/img_k%5B4%5D_result.jpg)
 
+
+referance
+https://blog.csdn.net/wsp_1138886114/article/details/80893941
+https://wangsp.blog.csdn.net/article/details/80475981

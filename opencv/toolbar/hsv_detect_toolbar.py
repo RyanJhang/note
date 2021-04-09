@@ -11,7 +11,10 @@ def hsv_debug():
     # # Load in image
 
     folder_path = os.path.dirname(os.path.abspath(__file__))
-    img_path = os.path.join(folder_path, "2.5_.jpg")
+    # img_path = os.path.join(folder_path, "4.0.jpg")
+    # img_path = os.path.join(folder_path, "2.5_.jpg")
+    img_path = os.path.join(folder_path, " 4.0.jpg")
+
     image = cv2.imread(img_path)
     # image = cv2.imread('1.jpg')
     height, width = image.shape[:2]

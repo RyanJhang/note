@@ -54,19 +54,17 @@ def kmeans(img):
     return img_k_result
 
 
-def calcAndDrawHist(image, color):
-    hist = cv2.calcHist([image], [0], None, [256], [0.0, 255.0])
-    minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(hist)
-    histImg = np.zeros([256, 256, 3], np.uint8)
-    hpt = int(0.9 * 256)
-
-    for h in range(256):
-        intensity = int(hist[h] * hpt / maxVal)
-        cv2.line(histImg, (h, 256), (h, 256 - intensity), color)
-    return histImg
-
-
 def show_rgb_hist(image):
+    def calcAndDrawHist(image, color):
+        hist = cv2.calcHist([image], [0], None, [256], [0.0, 255.0])
+        minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(hist)
+        histImg = np.zeros([256, 256, 3], np.uint8)
+        hpt = int(0.9 * 256)
+
+        for h in range(256):
+            intensity = int(hist[h] * hpt / maxVal)
+            cv2.line(histImg, (h, 256), (h, 256 - intensity), color)
+        return histImg
     b, g, r = cv2.split(image)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -91,7 +89,7 @@ def hsv_debug():
     # # Load in image
     folder_path = os.path.dirname(os.path.abspath(__file__))
     # img_path = os.path.join(folder_path, "30.0.jpg")
-    img_path = os.path.join(folder_path, "2.5_.jpg")
+    img_path = os.path.join(folder_path, " 4.0.jpg")
     image = cv2.imread(img_path)
 
     width, height = image.shape[1], image.shape[0]
