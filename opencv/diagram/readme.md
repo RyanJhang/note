@@ -1,6 +1,6 @@
 
 
-## referance
+## reference
 OpenCV—python 颜色直方图与直方图均衡化
 https://blog.csdn.net/wsp_1138886114/article/details/82938892
 

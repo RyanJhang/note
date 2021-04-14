@@ -12,3 +12,8 @@ Line #    Mem usage    Increment  Occurences   Line Contents
      5   47.496 MiB -152.590 MiB           1       del b
      6   47.496 MiB    0.000 MiB           1       return a
 ```
+
+
+## reference
+https://scikit-learn.org/dev/developers/performance.html#memory-usage-profiling
+https://zhuanlan.zhihu.com/p/121003986
