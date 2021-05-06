@@ -54,7 +54,7 @@ class SEN0366WithUSB:
                 self.ser.write(write_data)
                 print(f"write 8 byte data: {write_data}")
 
-                time.sleep(1)  # wait 0.5s
+                # time.sleep(1)  # wait 0.5s
             except Exception as e1:
                 print("communicating error " + str(e1))
 
@@ -74,7 +74,7 @@ class SEN0366WithUSB:
                 res_list = re.findall(r'.{2}', response.hex())
                 res_asc_list = [chr(int(i, 16)) for i in res_list]
                 if "".join(res_list[0:3]) == "800683":
-                    print("".join(res_asc_list[4:10]))
+                    return "".join(res_asc_list[4:10])
             except Exception as e1:
                 print("communicating error " + str(e1))
 
@@ -96,12 +96,27 @@ class SEN0366WithUSB:
 if __name__ == "__main__":
     sen = SEN0366WithUSB("COM8")
 
-    # write_data = [0x80, 0x04, 0x02, 0x7A]  # close_data
+    close_data = [0x80, 0x04, 0x02, 0x7A]  # close_data
     # write_data = [0x80, 0x06, 0x02, 0x78]  #  单次测量
     write_data = [0x80, 0x06, 0x03, 0x77]  # 連續测量
     # write_data = [0x80, 0x06, 0x05, 0x00, 0x75]  # 關燈
     # write_data = [0x80, 0x06, 0x05, 0x01, 0x74] # 開燈
     sen.write(write_data)
-    while 1:
-        sen.read()
+    time.sleep(1)
+
+    timeout = 20
+    start_time = time.time()
+    count = 0
+    while time.time() - start_time < timeout:
+        data = sen.read()
+        if data == "RR--15":
+            count += 1
+
+        try:
+            cm = float(data)*100
+            print(f"{cm} cm")
+        except:
+            print("except", data)
+            cm = None
+    print(f"count:{count}")
     sen.close()
