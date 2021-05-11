@@ -1,5 +1,5 @@
 class Param:
-    classvar  = "default"
+    classvar = "default"
 
     def __init__(self):
         self.somevar = 'Some value'
@@ -18,7 +18,7 @@ if __name__ == "__main__":
     print(Param.__dict__)
     print(p1.__dict__)
     print("----" * 10)
-    
+
     Param.classvar = 0
 
     print(Param.__dict__)

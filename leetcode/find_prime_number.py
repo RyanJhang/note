@@ -1,5 +1,5 @@
 lower = 1
-upper = 11
+upper = 10
 
 for num in range(lower, upper + 1):
     if num > 1:
