@@ -26,7 +26,7 @@ class Model:
 
     def on_enter_end(self):
         print(f"{self.name}_{self.id} {self.state} state ...")
-        # self.trigger("next") 接回去會無窮迴圈
+        self.trigger("next")  # 接回去會無窮迴圈
 
 
 class ModelThreading(threading.Thread):
@@ -36,6 +36,7 @@ class ModelThreading(threading.Thread):
         self.station_id = station_id
         self.model = Model(self.name, station_id)
         self.machine = Machine(model=self.model,
+                            #    queued=False,
                                states=[
                                    'start',
                                    'load',
@@ -47,21 +48,23 @@ class ModelThreading(threading.Thread):
                                    {'trigger': 'next', 'source': 'start', 'dest': 'load'},
                                    {'trigger': 'next', 'source': 'load', 'dest': 'write_plc'},
                                    {'trigger': 'next', 'source': 'write_plc', 'dest': 'wait_plc'},
-                                   {'trigger': 'next', 'source': 'wait_plc', 'dest': 'end'}
+                                   {'trigger': 'next', 'source': 'wait_plc', 'dest': 'end'},
+                                   {'trigger': 'next', 'source': 'end', 'dest': 'start'}
                                ],
                                initial='start',
                                show_conditions=True)
+        self.model.next()
 
-    def run(self):
-        print(f"{self.name}_{self.station_id} run ...")
-        self.model.trigger("next")
+    # def run(self):
+    #     print(f"{self.name}_{self.station_id} run ...")
+    #     self.model.trigger("next")
 
 
 if __name__ == "__main__":
     machines = []
-    for i in range(5):
+    for i in range(1):
         machines.append(ModelThreading(i))
-        machines[i].start()
+        # machines[i].next()
 
 '''
 Thread-1_0 run ...

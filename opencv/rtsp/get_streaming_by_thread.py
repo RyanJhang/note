@@ -42,6 +42,8 @@ class GetStreamingByThread:
         fourcc = cv2.VideoWriter_fourcc(*'MJPG')
         cap.set(cv2.CAP_PROP_FOURCC, fourcc)
 
+        # cap.set(3, 640) #set width
+        # cap.set(4, 480) #set height
         # 取得影像的尺寸大小
         width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -71,9 +73,10 @@ class GetStreamingByThread:
 
         self.__cap.release()
 
-
-# VIDEO_URL = "rtsp://root@172.19.1.38:554/live1s1.sdp", cv2.CAP_ANY
-VIDEO_URL = 0, cv2.CAP_DSHOW
+# a = "rtspsrc location=\"rtsp://root:12345678z@192.168.1.119:554/live1s1.sdp\" ! rtph264depay ! h264parse ! omxh264dec ! nvvidconv ! video/x-raw, format=(string)BGRx! videoconvert ! appsink"
+# VIDEO_URL = a, cv2.CAP_ANY
+VIDEO_URL = "rtsp://root:12345678z@192.168.1.119:554/live1s1.sdp", cv2.CAP_GSTREAMER
+# VIDEO_URL = 0, cv2.CAP_DSHOW
 
 if __name__ == '__main__':
     gsbt = GetStreamingByThread(*VIDEO_URL)
