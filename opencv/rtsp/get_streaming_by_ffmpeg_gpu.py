@@ -2,13 +2,13 @@ import subprocess
 import json
 
 # Use public RTSP Stream for testing
-in_stream = "rtsp://root:@172.19.1.84:554/live1s1.sdp"
+in_stream = "rtsp://root:@192.168.1.116:554/live1s1.sdp"
 
 probe_command = ['ffprobe.exe',
                  '-loglevel', 'error',
                  '-rtsp_transport', 'tcp',  # Force TCP (for testing)]
                  '-select_streams', 'v:0',  # Select only video stream 0.
-                 '-show_entries', 'stream=width,height', # Select only width and height entries
+                 '-show_entries', 'format=bit_rate,filename,start_time:stream=duration,width,height,display_aspect_ratio,r_frame_rate,bit_rate', # Select only width and height entries
                  '-of', 'json', # Get output in JSON format
                  in_stream]
 
@@ -18,6 +18,7 @@ probe_str = p0.communicate()[0] # Reading content of p0.stdout (output of FFprob
 p0.wait()
 probe_dct = json.loads(probe_str) # Convert string from JSON format to dictonary.
 
+print(probe_dct)
 # Get width and height from the dictonary
 width = probe_dct['streams'][0]['width']
 height = probe_dct['streams'][0]['height']

@@ -18,3 +18,7 @@ https://en.wikipedia.org/wiki/Intel_Quick_Sync_Video
 
 ## Intel® Quick Sync Video and FFmpeg Performance
 https://www.intel.com/content/dam/www/public/us/en/documents/white-papers/cloud-computing-quicksync-video-ffmpeg-white-paper.pdf
+
+
+## ffprobe 使用小结
+https://www.jianshu.com/p/789244ad10d8
