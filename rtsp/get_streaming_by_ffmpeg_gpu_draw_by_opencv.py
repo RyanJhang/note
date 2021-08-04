@@ -5,7 +5,7 @@ import subprocess
 import json
 
 
-class YUVInfo:
+class FrameInfo:
     width = None
     height = None
     yuv_height = None
@@ -17,7 +17,6 @@ class GetStreamingByFFmpegDrawByOpencv:
         self.rtsp_url = rtsp_url
         self.stream_info = self._get_streaming_info(mode, stream_info)
 
-        self.yuv_info = YUVInfo()
         self.ffmpeg_process = None
 
     def _get_streaming_info(self, mode, stream_info):
@@ -52,7 +51,7 @@ class GetStreamingByFFmpegDrawByOpencv:
         # height = probe_dct['streams'][0]['height']
         return probe_dct['streams'][0]
 
-    def init_decoder(self):
+    def init_yuv_decoder(self):
         ffmpeg_command = ["ffmpeg.exe", "-y",
                           "-hwaccel", "dxva2",
                           # "-c:v",  "h264_qsv",
@@ -69,20 +68,57 @@ class GetStreamingByFFmpegDrawByOpencv:
 
         self.ffmpeg_process = subprocess.Popen(ffmpeg_command, stdout=subprocess.PIPE, bufsize=10)
 
-        self.yuv_info.width = self.stream_info['width']
-        self.yuv_info.height = self.stream_info['height']
-        self.yuv_info.yuv_height = self.stream_info['height'] * 6 // 4
-        self.yuv_info.frame_bytes = int(self.yuv_info.width * self.yuv_info.yuv_height)
+        self.frame_info = FrameInfo()
+        self.frame_info.width = self.stream_info['width']
+        self.frame_info.height = self.stream_info['height']
+        self.frame_info.yuv_height = self.stream_info['height'] * 6 // 4
+        self.frame_info.frame_bytes = int(self.frame_info.width * self.frame_info.yuv_height)
 
     def get_a_yuv_frame(self):
 
-        raw_frame = self.ffmpeg_process.stdout.read(self.yuv_info.frame_bytes)  # read bytes of single frames
+        raw_frame = self.ffmpeg_process.stdout.read(self.frame_info.frame_bytes)  # read bytes of single frames
 
         if raw_frame == b'':
             # Break the loop in case of an error (too few bytes were read).
             raise Exception("Error reading frame!!!")
 
-        yuv = np.frombuffer(raw_frame, dtype=np.uint8).reshape((self.yuv_info.yuv_height, self.yuv_info.width))
+        yuv = np.frombuffer(raw_frame, dtype=np.uint8).reshape((self.frame_info.yuv_height, self.frame_info.width))
+
+        self.ffmpeg_process.stdout.flush()
+        return yuv
+
+    def init_rgb24_decoder(self):
+        ffmpeg_command = ["ffmpeg.exe", "-y",
+                          "-hwaccel", "dxva2",
+                          # "-c:v",  "h264_qsv",
+                          "-vsync", "1",
+                          "-max_delay", "500000",
+                          # "-reorder_queue_size", "10000",
+                          "-i", self.rtsp_url,
+                          "-f", "rawvideo",
+                          "-pix_fmt", "rgb24",
+                          "-preset", "slow",
+                          "-an", "-sn",
+                          # "-vf", "fps=15",
+                          "-"]
+
+        self.ffmpeg_process = subprocess.Popen(ffmpeg_command, stdout=subprocess.PIPE, bufsize=10)
+
+        self.frame_info = FrameInfo()
+        self.frame_info.width = self.stream_info['width']
+        self.frame_info.height = self.stream_info['height']
+        self.frame_info.yuv_height = self.stream_info['height'] * 6 // 4
+        self.frame_info.frame_bytes = int(self.frame_info.width * self.frame_info.yuv_height)
+
+    def get_a_rgb24_frame(self):
+
+        raw_frame = self.ffmpeg_process.stdout.read(self.frame_info.frame_bytes)  # read bytes of single frames
+
+        if raw_frame == b'':
+            # Break the loop in case of an error (too few bytes were read).
+            raise Exception("Error reading frame!!!")
+
+        yuv = np.frombuffer(raw_frame, dtype=np.uint8).reshape((self.frame_info.yuv_height, self.frame_info.width))
 
         self.ffmpeg_process.stdout.flush()
         return yuv
@@ -97,7 +133,7 @@ if __name__ == '__main__':
     rtsp_url = "rtsp://root:@172.19.1.122:554/live1s1.sdp"
 
     player = GetStreamingByFFmpegDrawByOpencv(rtsp_url)
-    player.init_decoder()
+    player.init_yuv_decoder()
     while 1:
         yuv = player.get_a_yuv_frame()
 
