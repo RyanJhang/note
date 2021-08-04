@@ -10,12 +10,12 @@ import time
 start = time.time()
 
 # USB camera setup
-cap = cv2.VideoCapture("rtsp://root:12345678z@192.168.1.116:554/live1s1.sdp")
+cap = cv2.VideoCapture("rtsp://root:12345678z@172.19.1.137:554/live1s1.sdp")
 if cap.isOpened() is False:
     raise("IO Error")
-cap.set(cv2.CAP_PROP_FPS, 30)
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, 720)
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+# cap.set(cv2.CAP_PROP_FPS, 30)
+# cap.set(cv2.CAP_PROP_FRAME_WIDTH, 720)
+# cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
 widowWidth = 720
 windowHeight = 480

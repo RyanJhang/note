@@ -1,4 +1,6 @@
 
+## key word Hardware Accelerated decode, GPU decode
+
 ## How to check coders in windows10?
 ```
 ffmpeg.exe -encoders
@@ -22,3 +24,7 @@ https://www.intel.com/content/dam/www/public/us/en/documents/white-papers/cloud-
 
 ## ffprobe 使用小结
 https://www.jianshu.com/p/789244ad10d8
+
+
+## pyaudio download
+https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio
