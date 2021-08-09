@@ -1,5 +1,7 @@
 
-## key word Hardware Accelerated decode, GPU decode
+## KEYWORD
+ - Hardware Accelerated decode
+ - GPU decode
 
 ## How to check coders in windows10?
 ```

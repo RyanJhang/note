@@ -51,8 +51,12 @@ def ffmpeg_video_process(in_filename):
                hwaccel="dxva2",
                rtsp_transport="tcp",
                vsync="1",
-               preset="slow")
-        .output('pipe:', format='rawvideo', pix_fmt='yuv420p')
+               preset="slow",
+               max_delay="500000")
+        .output('pipe:',
+                format='rawvideo',
+                pix_fmt='yuv420p',
+                preset="slow")
         .compile()
     )
     return subprocess.Popen(args, stdout=subprocess.PIPE)

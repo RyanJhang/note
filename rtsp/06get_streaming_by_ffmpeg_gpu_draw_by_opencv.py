@@ -90,6 +90,7 @@ class GetStreamingByFFmpegDrawByOpencv:
     def init_rgb24_decoder(self):
         ffmpeg_command = ["ffmpeg.exe", "-y",
                           "-hwaccel", "dxva2",
+                          '-rtsp_transport', 'tcp',  # Force TCP (for testing)
                           # "-c:v",  "h264_qsv",
                           "-vsync", "1",
                           "-max_delay", "500000",
@@ -107,8 +108,7 @@ class GetStreamingByFFmpegDrawByOpencv:
         self.frame_info = FrameInfo()
         self.frame_info.width = self.stream_info['width']
         self.frame_info.height = self.stream_info['height']
-        self.frame_info.yuv_height = self.stream_info['height'] * 6 // 4
-        self.frame_info.frame_bytes = int(self.frame_info.width * self.frame_info.yuv_height)
+        self.frame_info.frame_bytes = self.frame_info.width * self.frame_info.height * 3
 
     def get_a_rgb24_frame(self):
 
@@ -118,7 +118,7 @@ class GetStreamingByFFmpegDrawByOpencv:
             # Break the loop in case of an error (too few bytes were read).
             raise Exception("Error reading frame!!!")
 
-        yuv = np.frombuffer(raw_frame, dtype=np.uint8).reshape((self.frame_info.yuv_height, self.frame_info.width))
+        yuv = np.frombuffer(raw_frame, dtype=np.uint8).reshape((self.frame_info.height, self.frame_info.width, 3))
 
         self.ffmpeg_process.stdout.flush()
         return yuv
@@ -128,10 +128,8 @@ class GetStreamingByFFmpegDrawByOpencv:
             self.ffmpeg_process.kill()
 
 
-if __name__ == '__main__':
+def run_yuv(rtsp_url):    
     # Use public RTSP Stream for testing
-    rtsp_url = "rtsp://root:@172.19.1.122:554/live1s1.sdp"
-
     player = GetStreamingByFFmpegDrawByOpencv(rtsp_url)
     player.init_yuv_decoder()
     while 1:
@@ -146,3 +144,28 @@ if __name__ == '__main__':
 
     player.release_decoder()
     cv2.destroyAllWindows()
+
+
+def run_rgb(rtsp_url):
+    # Use public RTSP Stream for testing
+    player = GetStreamingByFFmpegDrawByOpencv(rtsp_url)
+    player.init_rgb24_decoder()
+    while 1:
+        frame = player.get_a_rgb24_frame()
+
+        image_scale = 0.25
+        frame = cv2.resize(frame, (0, 0), fx=image_scale, fy=image_scale)
+        # bgr = cv2.cvtColor(yuv, cv2.COLOR_YUV2BGR_I420)
+        cv2.imshow('image', frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    player.release_decoder()
+    cv2.destroyAllWindows()
+
+
+if __name__ == '__main__':
+    # Use public RTSP Stream for testing
+    rtsp_url = "rtsp://root:@172.19.1.122:554/live1s1.sdp"
+    run_rgb(rtsp_url)
+    # run_yuv(rtsp_url)
