@@ -1,5 +1,6 @@
 
 
+from functools import wraps
 import logging
 import subprocess
 import sys
@@ -12,6 +13,17 @@ import pyaudio
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
+
+
+def timeit_wrapper(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        start = time.perf_counter()
+        func_return_val = func(*args, **kwargs)
+        end = time.perf_counter()
+        print('{0:<10}.{1:<30} : {2:.8f}'.format(func.__module__, func.__name__, end - start))
+        return func_return_val
+    return wrapper
 
 
 class FrameInfo:
@@ -37,9 +49,10 @@ class StreamingInfo:
                 raise Exception("The stream_info could not be None.")
         return streaming_info
 
+    @timeit_wrapper
     def get_info_by_ffprobe(self):
         """
-        獲取視訊基本資訊
+        獲取視訊基本資訊，大約會花 1.1 - 1.3秒
         """
         try:
             probe = ffmpeg.probe(self.rtsp_url)
@@ -59,7 +72,31 @@ class YUVDecoder(StreamingInfo):
         self.video_process = None
 
     def init_yuv_decoder(self):
-        logger.info('Starting ffmpeg process1')
+        """
+        https://ffmpeg.org/ffmpeg.html
+        -vsync parameter
+            Video sync method. For compatibility reasons old values can be specified as numbers. Newly added values will have to be specified as strings always.
+
+            0, passthrough
+            Each frame is passed with its timestamp from the demuxer to the muxer.
+
+            1, cfr
+            Frames will be duplicated and dropped to achieve exactly the requested constant frame rate.
+
+            2, vfr
+            Frames are passed through with their timestamp or dropped so as to prevent 2 frames from having the same timestamp.
+
+            drop
+            As passthrough but destroys all timestamps, making the muxer generate fresh timestamps based on frame-rate.
+
+            -1, auto
+            Chooses between 1 and 2 depending on muxer capabilities. This is the default method.
+
+            Note that the timestamps may be further modified by the muxer, after this. For example, in the case that the format option avoid_negative_ts is enabled.
+
+            With -map you can select from which stream the timestamps should be taken. You can leave either video or audio unchanged and sync the remaining stream(s) to the unchanged one.
+        """
+        logger.info('init_yuv_decoder ffmpeg process')
         args = (
             ffmpeg
             .input(self.rtsp_url,
@@ -67,6 +104,7 @@ class YUVDecoder(StreamingInfo):
                    rtsp_transport="tcp",
                    vsync="1",
                    preset="slow",
+                   flags="low_delay",
                    max_delay="500000")
             .output('pipe:',
                     format='rawvideo',
@@ -105,7 +143,7 @@ class RGBDecoder(StreamingInfo):
         self.video_process = None
 
     def init_rgb24_decoder(self):
-        logger.info('Starting ffmpeg process1')
+        logger.info('init_rgb24_decoder ffmpeg process')
         args = (
             ffmpeg
             .input(self.rtsp_url,
@@ -113,6 +151,7 @@ class RGBDecoder(StreamingInfo):
                    rtsp_transport="tcp",
                    vsync="1",
                    preset="slow",
+                   flags="low_delay",
                    max_delay="500000")
             .output('pipe:',
                     format='rawvideo',
@@ -152,9 +191,17 @@ class AudioDecoder:
     def init_audio_decoder(self):
         try:
             args = (ffmpeg
-                    .input(self.rtsp_url, vsync="1")['a']
+                    .input(self.rtsp_url,
+                           rtsp_transport="tcp",
+                           vsync="1",
+                           preset="slow",
+                           flags="low_delay",)['a']
                     .filter('volume', 1)
-                    .output('pipe:', format='s16le', acodec='pcm_s16le', ac=1, ar="16k")
+                    .output('pipe:',
+                            format='s16le',
+                            acodec='pcm_s16le',
+                            ac=1,
+                            ar="16k")
                     .overwrite_output()
                     .compile()
                     )

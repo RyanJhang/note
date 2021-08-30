@@ -3,6 +3,7 @@
 # ----------------------------------------------------------------------------------
 # timeit_wrapper
 
+from a12_get_av_by_pyffmpeg_gpu_draw_by_opencv import YUVDecoder, AudioDecoder
 import logging
 import os
 import subprocess
@@ -126,7 +127,7 @@ class Ui_MainWindow(object):
                                                          "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
                                                          "p, li { white-space: pre-wrap; }\n"
                                                          "</style></head><body style=\" font-family:'PMingLiU'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
-                                                         "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:14pt;\">rtsp://root:@172.19.1.122:554/live1s1.sdp</span></p></body></html>", None))
+                                                         "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:14pt;\">rtsp://root:12345678z@172.19.1.137:554/live1s1.sdp</span></p></body></html>", None))
         self.pushButton.setText(QCoreApplication.translate("MainWindow", u"Connect", None))
     # retranslateUi
 
@@ -134,208 +135,8 @@ class Ui_MainWindow(object):
 # ----------------------------------------------------------------------------------
 # Decoder
 
-
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
-
-
-class FrameInfo:
-    width = None
-    height = None
-    yuv_height = None
-    frame_bytes = None
-
-
-class StreamingInfo:
-    def __init__(self, rtsp_url, mode="auto", stream_info=None):
-        self.rtsp_url = rtsp_url
-        self.stream_info = self._get_streaming_info(mode, stream_info)
-
-        self.video_process = None
-        self.audio_process = None
-
-    def _get_streaming_info(self, mode, streaming_info):
-        if mode == "auto":
-            streaming_info = self.get_info_by_ffprobe()
-        else:
-            if streaming_info is None:
-                raise Exception("The stream_info could not be None.")
-        return streaming_info
-
-    @timeit_wrapper
-    def get_info_by_ffprobe(self):
-        """
-        獲取視訊基本資訊，大約會花 1.1 - 1.3秒
-        """
-        try:
-            probe = ffmpeg.probe(self.rtsp_url)
-            video_stream = next((stream for stream in probe['streams'] if stream['codec_type'] == 'video'), None)
-            if video_stream is None:
-                print('No video stream found', file=sys.stderr)
-                sys.exit(1)
-            return video_stream
-        except ffmpeg.Error as err:
-            print(str(err.stderr, encoding='utf8'))
-            sys.exit(1)
-
-
-class YUVDecoder(StreamingInfo):
-    def __init__(self, rtsp_url, mode="auto", stream_info=None):
-        StreamingInfo.__init__(self, rtsp_url, mode, stream_info)
-        self.video_process = None
-
-    def init_yuv_decoder(self):
-        """
-        https://ffmpeg.org/ffmpeg.html
-        -vsync parameter
-            Video sync method. For compatibility reasons old values can be specified as numbers. Newly added values will have to be specified as strings always.
-
-            0, passthrough
-            Each frame is passed with its timestamp from the demuxer to the muxer.
-
-            1, cfr
-            Frames will be duplicated and dropped to achieve exactly the requested constant frame rate.
-
-            2, vfr
-            Frames are passed through with their timestamp or dropped so as to prevent 2 frames from having the same timestamp.
-
-            drop
-            As passthrough but destroys all timestamps, making the muxer generate fresh timestamps based on frame-rate.
-
-            -1, auto
-            Chooses between 1 and 2 depending on muxer capabilities. This is the default method.
-
-            Note that the timestamps may be further modified by the muxer, after this. For example, in the case that the format option avoid_negative_ts is enabled.
-
-            With -map you can select from which stream the timestamps should be taken. You can leave either video or audio unchanged and sync the remaining stream(s) to the unchanged one.
-        """
-        logger.info('init_yuv_decoder ffmpeg process')
-        args = (
-            ffmpeg
-            .input(self.rtsp_url,
-                   hwaccel="dxva2",
-                   rtsp_transport="tcp",
-                   vsync="1",
-                   preset="slow",
-                   flags="low_delay",
-                   max_delay="500000")
-            .output('pipe:',
-                    format='rawvideo',
-                    pix_fmt='yuv420p',
-                    preset="slow")
-            .compile()
-        )
-        self.video_process = subprocess.Popen(args, stdout=subprocess.PIPE)
-
-        self.frame_info = FrameInfo()
-        self.frame_info.width = self.stream_info['width']
-        self.frame_info.height = self.stream_info['height']
-        self.frame_info.yuv_height = self.stream_info['height'] * 6 // 4
-        self.frame_info.frame_bytes = int(self.frame_info.width * self.frame_info.yuv_height)
-
-    def get_a_yuv_frame(self):
-        raw_frame = self.video_process.stdout.read(self.frame_info.frame_bytes)  # read bytes of single frames
-
-        if raw_frame == b'':
-            # Break the loop in case of an error (too few bytes were read).
-            raise Exception("Error reading frame!!!")
-
-        yuv = np.frombuffer(raw_frame, dtype=np.uint8).reshape((self.frame_info.yuv_height, self.frame_info.width))
-
-        self.video_process.stdout.flush()
-        return yuv
-
-    def release_decoder(self):
-        if self.video_process:
-            self.video_process.kill()
-
-
-class RGBDecoder(StreamingInfo):
-    def __init__(self, rtsp_url, mode="auto", stream_info=None):
-        StreamingInfo.__init__(self, rtsp_url, mode, stream_info)
-        self.video_process = None
-
-    def init_rgb24_decoder(self):
-        logger.info('init_rgb24_decoder ffmpeg process')
-        args = (
-            ffmpeg
-            .input(self.rtsp_url,
-                   hwaccel="dxva2",
-                   rtsp_transport="tcp",
-                   vsync="1",
-                   preset="slow",
-                   flags="low_delay",
-                   max_delay="500000")
-            .output('pipe:',
-                    format='rawvideo',
-                    pix_fmt='bgr24',
-                    preset="slow")
-            .compile()
-        )
-        self.video_process = subprocess.Popen(args, stdout=subprocess.PIPE)
-
-        self.frame_info = FrameInfo()
-        self.frame_info.width = self.stream_info['width']
-        self.frame_info.height = self.stream_info['height']
-        self.frame_info.frame_bytes = self.frame_info.width * self.frame_info.height * 3
-
-    def get_a_rgb24_frame(self):
-        raw_frame = self.video_process.stdout.read(self.frame_info.frame_bytes)  # read bytes of single frames
-
-        if raw_frame == b'':
-            # Break the loop in case of an error (too few bytes were read).
-            raise Exception("Error reading frame!!!")
-
-        yuv = np.frombuffer(raw_frame, dtype=np.uint8).reshape((self.frame_info.height, self.frame_info.width, 3))
-
-        self.video_process.stdout.flush()
-        return yuv
-
-    def release_decoder(self):
-        if self.video_process:
-            self.video_process.kill()
-
-
-class AudioDecoder:
-    def __init__(self, rtsp_url):
-        self.rtsp_url = rtsp_url
-        self.audio_process = None
-
-    def init_audio_decoder(self):
-        try:
-            args = (ffmpeg
-                    .input(self.rtsp_url,
-                           rtsp_transport="tcp",
-                           vsync="1",
-                           preset="slow",
-                           flags="low_delay",)['a']
-                    .filter('volume', 1)
-                    .output('pipe:',
-                            format='s16le',
-                            acodec='pcm_s16le',
-                            ac=1,
-                            ar="16k")
-                    .overwrite_output()
-                    .compile()
-                    )
-        except ffmpeg.Error as e:
-            print(e.stderr, file=sys.stderr)
-            sys.exit(1)
-        self.audio_process = subprocess.Popen(args, stdout=subprocess.PIPE)
-
-    def get_pyaudio_player(self):
-        def callback(in_data, frame_count, time_info, status):
-            if self.audio_process.poll() is None:
-                data = self.audio_process.stdout.read(2 * frame_count)
-                return (data, pyaudio.paContinue)
-
-        audio = pyaudio.PyAudio()
-        pyaudio_player = audio.open(format=pyaudio.paInt16,
-                                    channels=1,
-                                    rate=16000,
-                                    output=True,
-                                    stream_callback=callback)
-        return pyaudio_player
 
 
 # ----------------------------------------------------------------------------------
@@ -358,13 +159,20 @@ class MainWindow(QMainWindow):
         self.ui.openGLWidget.paintGL = self.paintGL
 
         self.timer_opengl = QTimer(self)
-        self.timer_opengl.timeout.connect(self.opengl_update)
+        self.timer_opengl.timeout.connect(self.ui.openGLWidget.update)
 
         self.timer_frame = QTimer(self)
         self.timer_frame.timeout.connect(self.frame_update)
+        self.err = 0
 
     def frame_update(self):
-        self.curr_yuv_frame = self.player.get_a_yuv_frame()
+        if self.err > 10:
+            self.pushButton_click()
+
+        try:
+            self.curr_yuv_frame = self.player.get_a_yuv_frame()
+        except Exception:
+            self.err += 1
 
     def opengl_update(self):
         self.ui.pushButton.setText(str(time.time()))
