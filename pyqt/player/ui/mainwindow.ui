@@ -165,6 +165,8 @@
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../../../../../Downloads/openshot-qt-develop/openshot-qt-develop/images/openshot - 複製.qrc"/>
+ </resources>
  <connections/>
 </ui>

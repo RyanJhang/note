@@ -14,6 +14,7 @@ from libs.loggers.logger_creater import create_json_logger, create_std_logger
 from libs.loggers.logger_formatter import LoggerFormatter
 from libs.timeit_wrapper import timeit_wrapper
 from player_widget import PlayerInfo, PlayerWidget
+from calculator_widget import CalculatorWidget
 from ui.ui_mainwindow import Ui_MainWindow
 
 # logger
@@ -36,10 +37,19 @@ class MainWindow(QMainWindow):
         self.logger.debug("complete init ui")
 
     def init_ui(self):
-        self.player_info = PlayerInfo("rtsp://root:12345678z@172.19.1.137:554/live1s1.sdp", 1920, 1080, need_audio=True)
-        self.player_info = PlayerInfo("0", 1920, 1080, url_mode='UVC', need_audio=True)
-        self.playerPreview = PlayerWidget(player_info=self.player_info, logger=self.logger)
-        self.ui.layoutPlayer.addWidget(self.playerPreview)
+        # Player
+        self.player_info = PlayerInfo("rtsp://root:12345678z@172.19.1.137:554/live1s1.sdp", 1920, 1080, need_video=True,
+                                      need_audio=True,
+                                      need_score=True)
+        self.player_info = PlayerInfo("0", 1920, 1080, url_mode='UVC', need_video=True,
+                                      need_audio=True,
+                                      need_score=True)
+        self.player_weiget = PlayerWidget(player_info=self.player_info, logger=self.logger)
+        self.ui.layoutPlayer.addWidget(self.player_weiget)
+
+        # Calculator
+        self.calculator_widget = CalculatorWidget(self, player_info=self.player_info, logger=self.logger)
+        self.ui.layoutCalculator.addWidget(self.calculator_widget)
 
         for action in self.findChildren(QAction):
             shortcuts = [x.toString() for x in action.shortcuts()]
@@ -74,14 +84,14 @@ class MainWindow(QMainWindow):
         self.setWindowState(self.windowState() ^ QtCore.Qt.WindowFullScreen)
 
     def actionPlay_trigger(self):
-        self.playerPreview.play()
+        self.player_weiget.play()
 
     def actionStop_trigger(self):
-        self.playerPreview.stop()
+        self.player_weiget.stop()
 
     def actionPause_trigger(self):
-        print(json.dumps(self.playerPreview.v_decoder._get_info_by_ffprobe(), indent=4))
-        self.playerPreview
+        print(json.dumps(self.player_weiget.v_decoder._get_info_by_ffprobe(), indent=4))
+        self.player_weiget
 
     def getDocks(self):
         """ Get a list of all dockable widgets """

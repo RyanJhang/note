@@ -16,18 +16,29 @@ from libs.loggers.logger_formatter import LoggerFormatter
 URL_MODE_UVC = 'UVC'
 URL_MODE_RTSP = 'RTSP'
 
-ALLOW_URL_MODE = ['RTSP', 'UVC']
+ALLOW_URL_MODE = [URL_MODE_RTSP, URL_MODE_UVC]
 
 
 class PlayerInfo:
-    def __init__(self, url, width, height, url_mode='RTSP', fps=30, reconnect_times=3, need_audio=False):
+    def __init__(self,
+                 url,
+                 width,
+                 height,
+                 url_mode='RTSP',
+                 fps=30,
+                 reconnect_times=3,
+                 need_video=True,
+                 need_audio=False,
+                 need_score=False):
         self.url = url
         self.width = width
         self.height = height
         self.url_mode = url_mode
         self.fps = fps
         self.reconnect_times = reconnect_times
+        self.need_video = need_video
         self.need_audio = need_audio
+        self.need_score = need_score
         if url_mode not in ALLOW_URL_MODE:
             raise Exception(f"url_mode not allow in [{ALLOW_URL_MODE}]")
 
@@ -66,6 +77,7 @@ class AudioThread(QThread):
 
 
 class VideoThread(QThread):
+    retry_times_signal = Signal(str)
 
     def __init__(self, player_info: PlayerInfo, logger: LoggerFormatter, video_q: queue.Queue):
         QThread.__init__(self)
@@ -87,33 +99,21 @@ class VideoThread(QThread):
         return decoder
 
     def run(self):
-        ptvsd.debug_this_thread()
+        # ptvsd.debug_this_thread()
+        self.retry_times = 0
         while hasattr(self.v_decoder, "video_process"):
             # self.logger.debug((self.video_q.full(), self.err))
 
             try:
                 if self.err > 10:
-                    self.v_decoder.init_video_decoder()
                     self.err = 0
+                    self.retry_times += 1
+                    self.retry_times_signal.emit(str(self.retry_times))
+                    self.logger.debug(str(self.retry_times))
+                    self.v_decoder.init_video_decoder()
 
                 img = self.v_decoder.get_a_frame()
                 rgb_img = cv2.cvtColor(img, cv2.COLOR_YUV2RGB_I420)  # BGR-->RGB
-
-                # cv2.imshow('Image', rgb_img)
-                # if cv2.waitKey(1) == 27:
-                #     cv2.destroyAllWindows()
-                # temp = rgb_img[0:self.player_info.height // 5, 0:self.player_info.width // 5]
-                # x = cv2.Sobel(temp, cv2.CV_16S, 1, 0)
-                # y = cv2.Sobel(temp, cv2.CV_16S, 0, 1)
-                # absX = np.absolute(x)
-                # absY = np.absolute(y)
-                # cv2.rectangle(frame, (crop_y_x[0], crop_y_x[2]), (crop_y_x[1], crop_y_x[3]), (0, 255, 0), -1)
-                # cv2.imwrite('output{}.jpg'.format(i), frame)
-                # val = cv2.addWeighted(absX, 0.5, absY, 0.5, 0)
-
-                # res = cv2.sumElems(val)[0]
-                # cv2.putText(rgb_img, str(res), (100, 400), cv2.FONT_HERSHEY_SCRIPT_COMPLEX,
-                #             10, (0, 255, 255), 1, cv2.LINE_AA)
 
                 if self.video_q.full():
                     self.video_q.get_nowait()
@@ -131,6 +131,9 @@ class VideoThread(QThread):
         self.terminate()
         self.v_decoder.release_decoder()
 
+    def lost_connection(self):
+        self.hint_txet_in_video(f"No Signal, retry {self.retry_times} times.")
+
     def hint_txet_in_video(self, text: str):
         img = np.zeros((400, 400, 3), np.uint8)
         img.fill(90)
@@ -145,7 +148,7 @@ class PlayerWidget(QOpenGLWidget):
         QOpenGLWidget.__init__(self, *args)
         self.player_info = player_info
         self.logger = logger
-        self.video_q = queue.Queue(5)
+        self.video_q = queue.Queue(30)
 
         self.video_update_timer = QTimer(self)
         self.video_update_timer.timeout.connect(self.opengl_update)
@@ -159,9 +162,26 @@ class PlayerWidget(QOpenGLWidget):
         if self.player_info.need_audio:
             self.audio_thread = AudioThread(self.player_info, self.logger)
             self.audio_thread.start()
-        self.video_thread = VideoThread(self.player_info, self.logger, self.video_q)
-        self.video_thread.start()
-        self.video_update_timer.start(10)
+
+        if self.player_info.need_video:
+            self.video_thread = VideoThread(self.player_info, self.logger, self.video_q)
+            self.video_thread.start()
+            self.video_update_timer.start(10)
+
+            self.video_thread.retry_times_signal.connect(self.lost_connection)
+
+        if self.player_info.need_score:
+            self.video_thread = VideoThread(self.player_info, self.logger, self.video_q)
+            self.video_thread.start()
+            self.video_update_timer.start(10)
+
+            self.video_thread.retry_times_signal.connect(self.lost_connection)
+
+    def lost_connection(self, retry_times):
+        if retry_times != '' and int(retry_times) >= 3:
+            self.stop()
+            if hasattr(self, "video_thread"):
+                self.video_thread.lost_connection()
 
     def stop(self):
         if hasattr(self, "audio_thread"):
@@ -232,3 +252,21 @@ class PlayerWidget(QOpenGLWidget):
         gl.glVertex3d(-1.0, 1.0, 0.0)
         gl.glEnd()
         gl.glFlush()
+
+    def special_painting(self):
+        pass
+        # cv2.imshow('Image', rgb_img)
+        # if cv2.waitKey(1) == 27:
+        #     cv2.destroyAllWindows()
+        # temp = rgb_img[0:self.player_info.height // 5, 0:self.player_info.width // 5]
+        # x = cv2.Sobel(temp, cv2.CV_16S, 1, 0)
+        # y = cv2.Sobel(temp, cv2.CV_16S, 0, 1)
+        # absX = np.absolute(x)
+        # absY = np.absolute(y)
+        # cv2.rectangle(frame, (crop_y_x[0], crop_y_x[2]), (crop_y_x[1], crop_y_x[3]), (0, 255, 0), -1)
+        # cv2.imwrite('output{}.jpg'.format(i), frame)
+        # val = cv2.addWeighted(absX, 0.5, absY, 0.5, 0)
+
+        # res = cv2.sumElems(val)[0]
+        # cv2.putText(rgb_img, str(res), (100, 400), cv2.FONT_HERSHEY_SCRIPT_COMPLEX,
+        #             10, (0, 255, 255), 1, cv2.LINE_AA)
