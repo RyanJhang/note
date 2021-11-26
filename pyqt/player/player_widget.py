@@ -13,6 +13,9 @@ from libs.a12_get_av_by_pyffmpeg_gpu_draw_by_opencv import (AudioDecoder, DSAudi
                                                             YUVDecoder)
 from libs.loggers.logger_formatter import LoggerFormatter
 
+from read_qr_in_large_img_refactor import img_process
+
+
 URL_MODE_UVC = 'UVC'
 URL_MODE_RTSP = 'RTSP'
 
@@ -113,11 +116,14 @@ class VideoThread(QThread):
                     self.v_decoder.init_video_decoder()
 
                 img = self.v_decoder.get_a_frame()
-                rgb_img = cv2.cvtColor(img, cv2.COLOR_YUV2RGB_I420)  # BGR-->RGB
+                # rgb_img = cv2.cvtColor(img, cv2.COLOR_YUV2RGB_I420)  # BGR-->RGB
+                rgb_img = cv2.cvtColor(img, cv2.COLOR_YUV2BGR_I420)  # BGR-->RGB
 
                 if self.video_q.full():
                     self.video_q.get_nowait()
 
+                rgb_img = img_process(rgb_img)
+                # cv2.waitKey(1)
                 self.video_q.put(rgb_img)
 
             except Exception as e:
@@ -190,8 +196,8 @@ class PlayerWidget(QOpenGLWidget):
             self.audio_thread.wait()
         if hasattr(self, "video_thread"):
             self.video_thread.stop()
-            self.audio_thread.quit()
-            self.audio_thread.wait()
+            self.video_thread.quit()
+            self.video_thread.wait()
         if hasattr(self, "video_update_timer"):
             self.video_update_timer.start(1000)
 

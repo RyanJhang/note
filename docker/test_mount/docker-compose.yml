@@ -1,0 +1,13 @@
+version: "3.7"
+
+services:
+
+  flask1:
+    build: ./app
+    restart: always
+    container_name: test_mount
+    command: python3.8 -m
+    expose:
+      - 8080
+    volumes:
+      - ./app:/

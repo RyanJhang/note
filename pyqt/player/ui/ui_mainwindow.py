@@ -41,9 +41,9 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.dockPlayer.sizePolicy().hasHeightForWidth())
         self.dockPlayer.setSizePolicy(sizePolicy)
-        self.dockContentsPlayer = QWidget()
-        self.dockContentsPlayer.setObjectName(u"dockContentsPlayer")
-        self.gridLayout_5 = QGridLayout(self.dockContentsPlayer)
+        self.widgetContentsPlayer = QWidget()
+        self.widgetContentsPlayer.setObjectName(u"widgetContentsPlayer")
+        self.gridLayout_5 = QGridLayout(self.widgetContentsPlayer)
         self.gridLayout_5.setObjectName(u"gridLayout_5")
         self.gridLayout_5.setContentsMargins(9, 9, 9, 9)
         self.layoutPlayer = QVBoxLayout()
@@ -51,7 +51,7 @@ class Ui_MainWindow(object):
 
         self.gridLayout_5.addLayout(self.layoutPlayer, 0, 1, 1, 1)
 
-        self.dockPlayer.setWidget(self.dockContentsPlayer)
+        self.dockPlayer.setWidget(self.widgetContentsPlayer)
 
         self.gridLayout.addWidget(self.dockPlayer, 0, 0, 2, 1)
 
@@ -62,19 +62,24 @@ class Ui_MainWindow(object):
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.dockCalculator.sizePolicy().hasHeightForWidth())
         self.dockCalculator.setSizePolicy(sizePolicy1)
-        self.dockContentsController = QWidget()
-        self.dockContentsController.setObjectName(u"dockContentsController")
-        sizePolicy1.setHeightForWidth(self.dockContentsController.sizePolicy().hasHeightForWidth())
-        self.dockContentsController.setSizePolicy(sizePolicy1)
-        self.verticalLayout_2 = QVBoxLayout(self.dockContentsController)
+        self.widgetContentsController = QWidget()
+        self.widgetContentsController.setObjectName(u"widgetContentsController")
+        sizePolicy1.setHeightForWidth(self.widgetContentsController.sizePolicy().hasHeightForWidth())
+        self.widgetContentsController.setSizePolicy(sizePolicy1)
+        self.verticalLayout_2 = QVBoxLayout(self.widgetContentsController)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.verticalLayout_2.setContentsMargins(9, 9, 9, 9)
         self.layoutCalculator = QGridLayout()
         self.layoutCalculator.setObjectName(u"layoutCalculator")
+        self.label = QLabel(self.widgetContentsController)
+        self.label.setObjectName(u"label")
+
+        self.layoutCalculator.addWidget(self.label, 0, 0, 1, 1)
+
 
         self.verticalLayout_2.addLayout(self.layoutCalculator)
 
-        self.dockCalculator.setWidget(self.dockContentsController)
+        self.dockCalculator.setWidget(self.widgetContentsController)
 
         self.gridLayout.addWidget(self.dockCalculator, 0, 1, 2, 1)
 
@@ -130,6 +135,7 @@ class Ui_MainWindow(object):
         self.actionSnapshot.setText(QCoreApplication.translate("MainWindow", u"Snapshot", None))
         self.dockPlayer.setWindowTitle(QCoreApplication.translate("MainWindow", u"Player", None))
         self.dockCalculator.setWindowTitle(QCoreApplication.translate("MainWindow", u"Controller", None))
+        self.label.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
         self.menuView.setTitle(QCoreApplication.translate("MainWindow", u"View", None))
         self.menuPlayer.setTitle(QCoreApplication.translate("MainWindow", u"Player", None))

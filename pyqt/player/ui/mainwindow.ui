@@ -26,7 +26,7 @@
       <property name="windowTitle">
        <string>Player</string>
       </property>
-      <widget class="QWidget" name="dockContentsPlayer">
+      <widget class="QWidget" name="widgetContentsPlayer">
        <layout class="QGridLayout" name="gridLayout_5">
         <property name="leftMargin">
          <number>9</number>
@@ -58,7 +58,7 @@
       <property name="windowTitle">
        <string>Controller</string>
       </property>
-      <widget class="QWidget" name="dockContentsController">
+      <widget class="QWidget" name="widgetContentsController">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
          <horstretch>0</horstretch>
@@ -79,7 +79,15 @@
          <number>9</number>
         </property>
         <item>
-         <layout class="QGridLayout" name="layoutCalculator"/>
+         <layout class="QGridLayout" name="layoutCalculator">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>

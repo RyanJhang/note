@@ -7,6 +7,7 @@ import time
 import numpy as np
 from PySide2 import QtCore, QtGui, QtWidgets
 from PySide2.QtCore import QTimer
+from PySide2.QtCore import Qt
 from PySide2.QtGui import QKeySequence
 from PySide2.QtWidgets import QAction, QApplication, QDockWidget, QMainWindow
 
@@ -35,15 +36,16 @@ class MainWindow(QMainWindow):
 
         self.init_ui()
         self.logger.debug("complete init ui")
+        self.removeDockWidget(self.ui.dockCalculator)
 
     def init_ui(self):
         # Player
-        self.player_info = PlayerInfo("rtsp://root:12345678z@172.19.1.137:554/live1s1.sdp", 1920, 1080, need_video=True,
-                                      need_audio=True,
-                                      need_score=True)
-        self.player_info = PlayerInfo("0", 1920, 1080, url_mode='UVC', need_video=True,
-                                      need_audio=True,
-                                      need_score=True)
+        self.player_info = PlayerInfo("rtsp://root:@172.19.1.122:554/live1s1.sdp", 1600, 1200, need_video=True,
+                                      need_audio=False,
+                                      need_score=False)
+        # self.player_info = PlayerInfo("0", 1920, 1080, url_mode='UVC', need_video=True,
+        #                               need_audio=True,
+        #                               need_score=False)
         self.player_weiget = PlayerWidget(player_info=self.player_info, logger=self.logger)
         self.ui.layoutPlayer.addWidget(self.player_weiget)
 
@@ -82,6 +84,9 @@ class MainWindow(QMainWindow):
     def actionFullscreen_trigger(self):
         # Toggle fullscreen state (current state mask XOR WindowFullScreen)
         self.setWindowState(self.windowState() ^ QtCore.Qt.WindowFullScreen)
+        self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.ui.dockCalculator)
+        # self.ui.dockContentsController.floatDocks(False)
+        self.ui.dockCalculator.show()
 
     def actionPlay_trigger(self):
         self.player_weiget.play()
