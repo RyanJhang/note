@@ -74,7 +74,7 @@ class VideoCapture(ABVideoCapture):
 
 
 if __name__ == '__main__':
-    camera_addr = "rtsp://root:12345678z@192.168.1.119:554/live1s1.sdp"
+    camera_addr = "rtsp://root:@172.19.1.122:554/live1s1.sdp"
     with VideoCapture(camera_addr) as cap:
         for img in cap:
             

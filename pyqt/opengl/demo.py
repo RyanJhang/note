@@ -117,10 +117,6 @@ class GetStreamingByFFmpegDrawByOpencv:
             self.ffmpeg_process.kill()
 
 
-widowWidth = 720
-windowHeight = 480
-
-
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -135,12 +131,18 @@ class MainWindow(QMainWindow):
         self.player.init_yuv_decoder()
 
         timer = QTimer(self)
-        timer.timeout.connect(self.advanceGears)
-        timer.start(20)
+        timer.timeout.connect(self.opengl_update)
+        timer.start(33)
 
-    def advanceGears(self):
-        self.ui.pushButton.setText(str(time.time()))
+        timer = QTimer(self)
+        timer.timeout.connect(self.frame_update)
+        timer.start(10)
+
+    def frame_update(self):
         self.curr_yuv_frame = self.player.get_a_yuv_frame()
+
+    def opengl_update(self):
+        self.ui.pushButton.setText(str(time.time()))
         self.ui.openGLWidget.update()
 
     def pushButton_click(self):
@@ -156,6 +158,9 @@ class MainWindow(QMainWindow):
         print(w,h)
         gl.glViewport(0, 0, w, h)
         gl.glLoadIdentity()
+        
+        widowWidth = self.ui.openGLWidget.width
+        windowHeight = self.ui.openGLWidget.height
         # Make the display area proportional to the size of the view
         gl.glOrtho(-w / widowWidth, w / widowWidth, -h / windowHeight, h / windowHeight, -1.0, 1.0)
 

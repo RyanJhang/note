@@ -51,8 +51,12 @@ def ffmpeg_video_process(in_filename):
                hwaccel="dxva2",
                rtsp_transport="tcp",
                vsync="1",
-               preset="slow")
-        .output('pipe:', format='rawvideo', pix_fmt='yuv420p')
+               preset="slow",
+               max_delay="500000")
+        .output('pipe:',
+                format='rawvideo',
+                pix_fmt='yuv420p',
+                preset="slow")
         .compile()
     )
     return subprocess.Popen(args, stdout=subprocess.PIPE)
@@ -129,7 +133,7 @@ def pyaudio_process(audio_process):
 
 
 if __name__ == '__main__':
-    file_path = "rtsp://root:12345678z@172.19.1.137:554/live1s1.sdp"
+    file_path = "rtsp://root:@172.19.1.122:554/live1s1.sdp"
     # audio init
     audio_process = ffmpeg_audio_process(file_path)
     pyaudio_player = pyaudio_process(audio_process)

@@ -75,7 +75,7 @@ class GetStreamingByThread:
 
 # a = "rtspsrc location=\"rtsp://root:12345678z@192.168.1.119:554/live1s1.sdp\" ! rtph264depay ! h264parse ! omxh264dec ! nvvidconv ! video/x-raw, format=(string)BGRx! videoconvert ! appsink"
 # VIDEO_URL = a, cv2.CAP_ANY
-VIDEO_URL = "rtsp://root:@172.19.1.122:554/live1s1.sdp", cv2.CAP_ANY        
+VIDEO_URL = "rtsp://root:12345678z@172.19.1.137:554/live1s1.sdp", cv2.CAP_ANY        
 # VIDEO_URL = 0, cv2.CAP_DSHOW
 
 if __name__ == '__main__':
