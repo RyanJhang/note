@@ -1,0 +1,1 @@
+C:/Python38_64/python.exe -m uvicorn app.main:app --reload

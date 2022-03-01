@@ -1,0 +1,1 @@
+C:\Python38_64\Scripts\pyinstaller.exe -y --clean --additional-hooks-dir extra-hooks demo2_pyinstaller.py
