@@ -131,3 +131,11 @@ dmypy.json
 \.vscode/
 
 pyqt/player/log/
+
+smb/connection_info\.json
+
+/opencv/blemish/
+
+
+/build/
+/dist/
