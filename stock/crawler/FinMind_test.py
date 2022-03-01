@@ -9,6 +9,7 @@ stock_data = dl.taiwan_stock_daily(
 stock_data = dl.feature.add_kline_institutional_investors(
     stock_data
 ) 
+
 # 下載融資券資料
 stock_data = dl.feature.add_kline_margin_purchase_short_sale(
     stock_data
