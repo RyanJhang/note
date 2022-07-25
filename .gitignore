@@ -131,3 +131,20 @@ dmypy.json
 \.vscode/
 
 pyqt/player/log/
+
+smb/connection_info\.json
+
+/opencv/blemish/
+
+
+/build/
+/dist/
+bot/config\.ini
+
+bot/ngrok\.exe
+
+pyqt/player/ffmpeg\.exe
+
+pyqt/player/ffplay\.exe
+
+pyqt/player/ffprobe\.exe
