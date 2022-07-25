@@ -139,3 +139,12 @@ smb/connection_info\.json
 
 /build/
 /dist/
+bot/config\.ini
+
+bot/ngrok\.exe
+
+pyqt/player/ffmpeg\.exe
+
+pyqt/player/ffplay\.exe
+
+pyqt/player/ffprobe\.exe

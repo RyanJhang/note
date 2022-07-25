@@ -34,7 +34,7 @@ def get_thd(abs_data):
     return thd
 
 
-AudioName = "mix_tone_16k_8p.wav"  # Audio File
+AudioName = "dut_record_0.wav"  # Audio File
 
 file_path = f'{os.path.dirname(os.path.abspath(__file__))}\\{AudioName}'
 fs, Audiodata = wavfile.read(file_path)
