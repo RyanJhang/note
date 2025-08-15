@@ -1,0 +1,11 @@
+#
+msgid ""
+msgstr ""
+"Language: th\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "Hello, World!"
+msgstr "สวัสดีโลก!"
+
+msgid "hi barcode"
+msgstr "สวัสดีบาร์โค้ด"

@@ -1,0 +1,11 @@
+#
+msgid ""
+msgstr ""
+"Language: zh-TW\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "Hello, World!"
+msgstr "你好世界！"
+
+msgid "hi barcode"
+msgstr "嗨，條形碼"

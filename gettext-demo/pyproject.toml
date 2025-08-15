@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "gettext-demo"
+version = "0.1.0"
+description = ""
+authors = ["ryan.jhang <ryan.jhang@ryan.com>"]
+readme = "README.md"
+packages = [{include = "gettext_demo"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

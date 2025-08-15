@@ -303,9 +303,9 @@ def run_audio_vedio(rtsp_url):
 
 if __name__ == '__main__':
     # Use public RTSP Stream for testing
-    rtsp_url_2k = "rtsp://root:@172.19.1.122:554/live1s1.sdp"
-    rtsp_url_av = "rtsp://root:12345678z@172.19.1.137:554/live1s1.sdp"
-    # run_yuv(rtsp_url)
+    # rtsp_url_2k = "rtsp://root:@172.19.1.122:554/live1s1.sdp"
+    rtsp_url = "rtsp://root:@192.168.200.99:554/live1s1.sdp"
+    run_yuv(rtsp_url)
     # run_rgb(rtsp_url)
     # run_audio(rtsp_url_av)
-    run_audio_vedio(rtsp_url_av)
+    # run_audio_vedio(rtsp_url_av)

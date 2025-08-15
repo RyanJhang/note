@@ -1,0 +1,11 @@
+#
+msgid ""
+msgstr ""
+"Language: vi\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "Hello, World!"
+msgstr "Xin chào, thế giới!"
+
+msgid "hi barcode"
+msgstr "Hi mã vạch"

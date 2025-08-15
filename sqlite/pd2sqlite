@@ -1,0 +1,18 @@
+import pandas as pd
+import sqlite3
+
+# 創造一個示例 DataFrame
+data = {
+    'Column1': [1, 2, 3, 4],
+    'Column2': ['A', 'B', 'C', 'D']
+}
+df = pd.DataFrame(data)
+
+# 創建 SQLite 連接
+conn = sqlite3.connect('my_database.db')
+
+# 將 DataFrame 儲存到 SQLite 資料庫
+df.to_sql('my_table', conn, index=False, if_exists='replace')
+
+# 關閉連接
+conn.close()

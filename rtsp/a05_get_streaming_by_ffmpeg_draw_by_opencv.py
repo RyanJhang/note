@@ -4,7 +4,7 @@ import subprocess
 import json
 
 # Use public RTSP Stream for testing
-in_stream = "rtsp://root:@172.19.1.122:554/live1s1.sdp"
+in_stream = "rtsp://root:@192.168.200.99:554/live1s1.sdp"
 
 probe_command = ['ffprobe.exe',
                  '-loglevel', 'error',

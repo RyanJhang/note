@@ -133,7 +133,7 @@ def pyaudio_process(audio_process):
 
 
 if __name__ == '__main__':
-    file_path = "rtsp://root:@172.19.1.122:554/live1s1.sdp"
+    file_path = "rtsp://root:@192.168.200.99:554/live1s1.sdp"
     # audio init
     audio_process = ffmpeg_audio_process(file_path)
     pyaudio_player = pyaudio_process(audio_process)
